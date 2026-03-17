@@ -1,26 +1,27 @@
-import {FloorData} from "@/app/viewer/utils";
+import {FloorData} from "@/app/utils";
 import RoomOverlay from "@/app/viewer/[floor]/RoomOverlay";
 import {RectReadOnly} from "react-use-measure";
+import {CalendarEvent} from "@/app/ade";
 
 interface FloorOverlayProps {
     floorData: FloorData,
-    imgBounds: RectReadOnly
+    imgBounds: RectReadOnly,
     isLandscape?: boolean,
+    calendarEvents: CalendarEvent[]
 }
 
-export default function FloorOverlay({floorData, imgBounds, isLandscape = true}: FloorOverlayProps) {
+export default function FloorOverlay({floorData, imgBounds, isLandscape = true, calendarEvents}: FloorOverlayProps) {
     const width = isLandscape ? imgBounds.width : imgBounds.height;
     const height = isLandscape ? imgBounds.height : imgBounds.width;
 
     const scaleX = width / floorData.size.width;
     const scaleY = height / floorData.size.height;
 
-    console.log(`Rendering floor overlay with scaleX: ${scaleX}, scaleY: ${scaleY}, width: ${width}, height: ${height}, realImageWidth: ${floorData.size.width}, realImageHeight: ${floorData.size.height}`);
-
     return (
-        <div style={{width, height}} className="absolute top-0 left-0 opacity-50 z-10">
+        <div style={{width, height}} className="absolute top-0 opacity-90 left-0 z-10">
             {floorData.rooms.map((room) => (
-                <RoomOverlay key={room.name} room={room} scaleX={scaleX} scaleY={scaleY}/>
+                <RoomOverlay key={room.name} room={room} scaleX={scaleX} scaleY={scaleY}
+                             roomEvents={calendarEvents.filter(event => event.location === room.name)}/>
             ))}
         </div>
     );

@@ -8,6 +8,7 @@ export async function getFloorImageUrl(floor: string) {
 
 export type RoomData = {
     name: string;
+    adeName: string;
     coords: {
         x1: number;
         y1: number;
@@ -20,6 +21,7 @@ export type RoomData = {
 
 type RawRoomData = {
     name?: string;
+    adeName?: string;
     bbox: [number, number, number, number]; // [x, y, width, height]
 };
 
@@ -41,6 +43,7 @@ function normalizeRoom(room: RawRoomData): RoomData {
 
     return {
         name: room.name ?? "Unknown",
+        adeName: room.adeName ?? room.name ?? "Unknown",
         coords: {
             x1: x,
             y1: y,
@@ -52,7 +55,7 @@ function normalizeRoom(room: RawRoomData): RoomData {
     };
 }
 
-export async function getFloorData(floor: string): Promise<{data?: FloorData, error?: Error}> {
+export async function getFloorData(floor: string): Promise<{ data?: FloorData, error?: Error }> {
     const filePath = path.join(process.cwd(), 'public', 'B2', `${floor}.json`);
 
     try {
