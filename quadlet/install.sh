@@ -132,6 +132,19 @@ run() {
   "$@"
 }
 
+enable_unit_best_effort() {
+  # Quadlet/systemd behavior differs by distro version; enabling may fail even if start/restart works.
+  if "${SYSTEMCTL[@]}" enable "$SERVICE_NAME.container"; then
+    return 0
+  fi
+  if "${SYSTEMCTL[@]}" enable "$SERVICE_NAME.service"; then
+    return 0
+  fi
+
+  echo "Warning: could not enable $SERVICE_NAME for boot on this system; continuing with runtime start/restart only." >&2
+  return 0
+}
+
 build_image() {
   local network_mode="$1"
   local -a build_cmd=("${SUDO[@]}" podman build --pull=always -t "$IMAGE_REF" -f "$PROJECT_TARGET/Dockerfile" "$PROJECT_TARGET")
@@ -231,8 +244,7 @@ awk -v wd="$PROJECT_TARGET" '
 run "${SUDO[@]}" cp "$TMP_UNIT" "$UNIT_DEST_PATH"
 
 run "${SYSTEMCTL[@]}" daemon-reload
-# For Quadlet, enable the source unit name (<name>.container), not an absolute path.
-run "${SYSTEMCTL[@]}" enable "$SERVICE_NAME.container"
+enable_unit_best_effort
 if "${SYSTEMCTL[@]}" is-active --quiet "$SERVICE_NAME.service"; then
   run "${SYSTEMCTL[@]}" restart "$SERVICE_NAME.service"
 else

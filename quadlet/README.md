@@ -48,7 +48,7 @@ Reload and enable:
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable ucbl-room-viewer.container
+sudo systemctl enable ucbl-room-viewer.service
 sudo systemctl start ucbl-room-viewer.service
 ```
 
@@ -74,7 +74,7 @@ Reload and enable:
 
 ```bash
 systemctl --user daemon-reload
-systemctl --user enable ucbl-room-viewer.container
+systemctl --user enable ucbl-room-viewer.service
 systemctl --user start ucbl-room-viewer.service
 loginctl enable-linger "$USER"
 ```
@@ -89,3 +89,4 @@ loginctl enable-linger "$USER"
 - Use `--build-only` if you want to copy sources and build the image without changing Quadlet/systemd.
 - `--build-only` and `--skip-build` cannot be used together.
 - `--build-network auto` (default) switches to `host` for build when `/dev/net/tun` is missing.
+- On some LXC/systemd versions, `enable` may fail for Quadlet units; `start`/`restart` of `ucbl-room-viewer.service` can still work.
