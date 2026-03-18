@@ -1,0 +1,25 @@
+[Unit]
+Description=UCBL Room Viewer (Podman Quadlet)
+Wants=network-online.target
+After=network-online.target
+
+[Container]
+ContainerName=ucbl-room-viewer
+Image=localhost/ucbl-room-viewer:latest
+PublishPort=8888:3000
+Environment=NODE_ENV=production
+HealthCmd=/usr/bin/wget --quiet --tries=1 --spider http://127.0.0.1:3000 || exit 1
+HealthInterval=30s
+HealthTimeout=3s
+HealthRetries=3
+HealthStartPeriod=5s
+
+[Service]
+Restart=always
+TimeoutStartSec=900
+# Update this path to where your project is checked out on the Linux host.
+WorkingDirectory=/opt/ucbl-room-viewer
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=default.target
