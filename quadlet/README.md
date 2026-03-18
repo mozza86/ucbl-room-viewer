@@ -31,6 +31,7 @@ quadlet/install.sh --mode system --target /srv/ucbl-room-viewer
 quadlet/install.sh --service-name ucbl-room-viewer
 quadlet/install.sh --skip-build
 quadlet/install.sh --build-only
+quadlet/install.sh --build-network host
 ```
 
 ## Manual install (system mode)
@@ -86,3 +87,4 @@ loginctl enable-linger "$USER"
 - Use `--skip-build` if you want to redeploy/restart without rebuilding the image.
 - Use `--build-only` if you want to copy sources and build the image without changing Quadlet/systemd.
 - `--build-only` and `--skip-build` cannot be used together.
+- `--build-network auto` (default) switches to `host` for build when `/dev/net/tun` is missing.
