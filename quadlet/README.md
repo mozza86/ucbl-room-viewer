@@ -48,7 +48,8 @@ Reload and enable:
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now ucbl-room-viewer.service
+sudo systemctl enable ucbl-room-viewer.container
+sudo systemctl start ucbl-room-viewer.service
 ```
 
 Check status:
@@ -73,7 +74,8 @@ Reload and enable:
 
 ```bash
 systemctl --user daemon-reload
-systemctl --user enable --now ucbl-room-viewer.service
+systemctl --user enable ucbl-room-viewer.container
+systemctl --user start ucbl-room-viewer.service
 loginctl enable-linger "$USER"
 ```
 
@@ -81,7 +83,6 @@ loginctl enable-linger "$USER"
 
 - Port mapping is `8888:3000`.
 - `NODE_ENV=production` is set in the container.
-- Healthcheck uses `wget http://127.0.0.1:3000` inside the container.
 - The script uses `rsync` when available, with fallback to `tar`.
 - The image is built during `quadlet/install.sh`, not at each service start.
 - Use `--skip-build` if you want to redeploy/restart without rebuilding the image.

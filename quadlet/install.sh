@@ -174,6 +174,7 @@ else
   UNIT_DEST_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/containers/systemd"
   SYSTEMCTL=(systemctl --user)
 fi
+UNIT_DEST_PATH="$UNIT_DEST_DIR/$SERVICE_NAME.container"
 
 if command -v rsync >/dev/null 2>&1; then
   run "${SUDO[@]}" mkdir -p "$PROJECT_TARGET"
@@ -227,11 +228,16 @@ awk -v wd="$PROJECT_TARGET" '
   END {if (!updated) print "WorkingDirectory=" wd}
 ' "$UNIT_SOURCE" > "$TMP_UNIT"
 
-run "${SUDO[@]}" cp "$TMP_UNIT" "$UNIT_DEST_DIR/$SERVICE_NAME.container"
+run "${SUDO[@]}" cp "$TMP_UNIT" "$UNIT_DEST_PATH"
 
 run "${SYSTEMCTL[@]}" daemon-reload
-run "${SYSTEMCTL[@]}" enable --now "$SERVICE_NAME.service"
-run "${SYSTEMCTL[@]}" restart "$SERVICE_NAME.service"
+# For Quadlet, enable the source unit name (<name>.container), not an absolute path.
+run "${SYSTEMCTL[@]}" enable "$SERVICE_NAME.container"
+if "${SYSTEMCTL[@]}" is-active --quiet "$SERVICE_NAME.service"; then
+  run "${SYSTEMCTL[@]}" restart "$SERVICE_NAME.service"
+else
+  run "${SYSTEMCTL[@]}" start "$SERVICE_NAME.service"
+fi
 run "${SYSTEMCTL[@]}" --no-pager --full status "$SERVICE_NAME.service"
 
 echo "Deployment completed."
