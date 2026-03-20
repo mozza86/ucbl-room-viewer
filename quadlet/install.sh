@@ -18,6 +18,7 @@ Options:
   --service-name <name>      systemd service base name (default: ${SERVICE_NAME})
   --unit-source <path>       Source Quadlet .container file (default: <source>/quadlet/<service-name>.container)
   --build-network <mode>     Podman build network mode: auto|default|host (default: auto)
+  --no-cache                 Disable Podman build cache
   --skip-build               Skip podman image build during deployment
   --build-only               Copy sources + build image, then exit (no systemd changes)
   --help                     Show this help
@@ -28,6 +29,7 @@ Examples:
   quadlet/install.sh --mode user --target "\$HOME/apps/${SERVICE_NAME}"
   sudo quadlet/install.sh --service-name my-app --build-only
   sudo quadlet/install.sh --build-network host
+  sudo quadlet/install.sh --no-cache
 EOF
 }
 
@@ -41,6 +43,7 @@ UNIT_SOURCE=""
 SKIP_BUILD=0
 BUILD_ONLY=0
 BUILD_NETWORK="${BUILD_NETWORK:-auto}"
+NO_CACHE=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -67,6 +70,10 @@ while [[ $# -gt 0 ]]; do
     --build-network)
       BUILD_NETWORK="${2:-}"
       shift 2
+      ;;
+    --no-cache)
+      NO_CACHE=1
+      shift
       ;;
     --skip-build)
       SKIP_BUILD=1
@@ -147,11 +154,17 @@ enable_unit_best_effort() {
 
 build_image() {
   local network_mode="$1"
-  local -a build_cmd=("${SUDO[@]}" podman build --pull=always -t "$IMAGE_REF" -f "$PROJECT_TARGET/Dockerfile" "$PROJECT_TARGET")
+  local -a build_cmd=("${SUDO[@]}" podman build)
 
   if [[ "$network_mode" != "default" ]]; then
-    build_cmd=("${SUDO[@]}" podman build --network "$network_mode" --pull=always -t "$IMAGE_REF" -f "$PROJECT_TARGET/Dockerfile" "$PROJECT_TARGET")
+    build_cmd+=(--network "$network_mode")
   fi
+
+  if [[ "$NO_CACHE" -eq 1 ]]; then
+    build_cmd+=(--no-cache)
+  fi
+
+  build_cmd+=(--pull=always -t "$IMAGE_REF" -f "$PROJECT_TARGET/Dockerfile" "$PROJECT_TARGET")
 
   run "${build_cmd[@]}"
 }

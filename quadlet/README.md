@@ -32,6 +32,7 @@ quadlet/install.sh --service-name ucbl-room-viewer
 quadlet/install.sh --skip-build
 quadlet/install.sh --build-only
 quadlet/install.sh --build-network host
+quadlet/install.sh --no-cache
 ```
 
 ## Manual install (system mode)
@@ -87,6 +88,7 @@ loginctl enable-linger "$USER"
 - The image is built during `quadlet/install.sh`, not at each service start.
 - Use `--skip-build` if you want to redeploy/restart without rebuilding the image.
 - Use `--build-only` if you want to copy sources and build the image without changing Quadlet/systemd.
+- Use `--no-cache` to force a fresh image build without reusing build cache layers.
 - `--build-only` and `--skip-build` cannot be used together.
 - `--build-network auto` (default) switches to `host` for build when `/dev/net/tun` is missing.
 - On some LXC/systemd versions, `enable` may fail for Quadlet units; `start`/`restart` of `ucbl-room-viewer.service` can still work.
