@@ -1,9 +1,16 @@
-import FloorSelector from "@/app/viewer/FloorSelector";
+import {getBuildingList} from "@/app/utils";
+import Link from "next/link";
 
-export default function Page() {
+export default async function Page() {
+    const buildings = await getBuildingList()
+
     return (
         <div>
-            <FloorSelector />
+            {buildings.map((building) => (
+                <Link href={`/viewer/${building}`} key={building} className="block p-4 border rounded mb-2">
+                    {building}
+                </Link>
+            ))}
         </div>
-    );
+    )
 }

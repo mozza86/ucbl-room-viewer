@@ -1,0 +1,116 @@
+{
+  "name": "Informatique",
+  "code": "B2",
+  "description": "Bâtiment d'informatique de l'IUT",
+  "adeUrl": "https://edt.univ-lyon1.fr/jsp/custom/modules/plannings/anonymous_cal.jsp?resources=9113,126,134,132,118,119,120,121,122,123,135,136,133,9188,344,127,128,129,130,131&projectId=1&calType=ical",
+  "floors": [
+    {
+      "level": "2",
+      "label": "2ème étage",
+      "image": "/B2/2.jpg",
+      "size": [2047, 894],
+      "rooms": [
+        {
+          "name": "S21",
+          "bbox": [290, 0, 365, 380]
+        },
+        {
+          "name": "S22",
+          "bbox": [655, 0, 275, 380]
+        },
+        {
+          "name": "S23",
+          "adeName": "S23 - TP réseau",
+          "bbox": [930, 0, 275, 380]
+        },
+        {
+          "name": "S24",
+          "bbox": [1200, 510, 370, 380]
+        },
+        {
+          "name": "S25",
+          "bbox": [650, 510, 550, 380]
+        },
+        {
+          "name": "S26",
+          "bbox": [325, 510, 325, 380]
+        },
+        {
+          "name": "S27",
+          "bbox": [0, 510, 325, 380]
+        }
+      ]
+    },
+    {
+      "level": "1",
+      "label": "1er étage",
+      "image": "/B2/1.jpg",
+      "size": [2047, 894],
+      "rooms": [
+        {
+          "name": "S10",
+          "bbox": [380, 0, 280, 385]
+        },
+        {
+          "name": "S11",
+          "bbox": [657, 0, 280, 385]
+        },
+        {
+          "name": "S12",
+          "bbox": [934, 0, 375, 385]
+        },
+        {
+          "name": "S13",
+          "bbox": [1300, 0, 375, 385]
+        },
+        {
+          "name": "S14",
+          "bbox": [1671, 0, 375, 385]
+        },
+        {
+          "name": "BDE",
+          "bbox": [1392, 520, 279, 370]
+        },
+        {
+          "name": "S15",
+          "bbox": [1119, 520, 272, 370]
+        },
+        {
+          "name": "S16",
+          "bbox": [746, 520, 375, 370]
+        },
+        {
+          "name": "S17",
+          "bbox": [378, 520, 370, 370]
+        },
+        {
+          "name": "S18",
+          "bbox": [0, 520, 380, 370]
+        }
+      ]
+    },
+    {
+      "level": "0",
+      "label": "Rez-de-chaussée",
+      "image": "/B2/0.jpg",
+      "size": [2047, 894],
+      "rooms": [
+        {
+          "name": "S01",
+          "bbox": [655, 0, 370, 380]
+        },
+        {
+          "name": "S03",
+          "bbox": [1295, 515, 370, 375]
+        }
+      ]
+    },
+    {
+      "level": "-1",
+      "label": "Sous-sol",
+      "image": "/B2/-1.jpg",
+      "size": [2047, 894],
+      "rooms": []
+    }
+  ]
+}

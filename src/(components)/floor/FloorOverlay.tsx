@@ -1,5 +1,5 @@
 import {FloorData} from "@/app/utils";
-import RoomOverlay from "@/app/viewer/[floor]/RoomOverlay";
+import RoomOverlay from "@/(components)/room/RoomOverlay";
 import {RectReadOnly} from "react-use-measure";
 import {CalendarEvent} from "@/app/ade";
 
@@ -10,7 +10,7 @@ interface FloorOverlayProps {
     calendarEvents: CalendarEvent[]
 }
 
-export default function FloorOverlay({floorData, imgBounds, isLandscape = true, calendarEvents}: FloorOverlayProps) {
+export default function FloorOverlay({floorData, imgBounds, isLandscape = true, calendarEvents}: Readonly<FloorOverlayProps>) {
     const width = isLandscape ? imgBounds.width : imgBounds.height;
     const height = isLandscape ? imgBounds.height : imgBounds.width;
 

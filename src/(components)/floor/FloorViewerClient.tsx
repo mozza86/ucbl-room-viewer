@@ -1,5 +1,5 @@
 'use client'
-import FloorOverlay from "@/app/viewer/[floor]/FloorOverlay";
+import FloorOverlay from "@/(components)/floor/FloorOverlay";
 import Image from "next/image";
 import {FloorData} from "@/app/utils";
 import useMeasure from "react-use-measure";
@@ -7,12 +7,11 @@ import {useMountedState, useWindowSize} from "react-use";
 import {CalendarEvent} from "@/app/ade";
 
 interface FloorViewerClientProps {
-    imageUrl: string,
     floorData: FloorData,
     calendarEvents: CalendarEvent[]
 }
 
-export default function FloorViewerClient({imageUrl, floorData, calendarEvents}: FloorViewerClientProps) {
+export default function FloorViewerClient({floorData, calendarEvents}: Readonly<FloorViewerClientProps>) {
     const [imgRef, bounds] = useMeasure();
     const {width, height} = useWindowSize();
     const isMounted = useMountedState();
@@ -27,7 +26,7 @@ export default function FloorViewerClient({imageUrl, floorData, calendarEvents}:
         }}>
             <FloorOverlay floorData={floorData} isLandscape={isLandscape} imgBounds={bounds}
                           calendarEvents={calendarEvents}/>
-            <Image ref={imgRef} src={imageUrl} alt={"floor image"} width={floorData.size.width}
+            <Image ref={imgRef} src={floorData.image} alt={"floor image"} width={floorData.size.width}
                    height={floorData.size.height}/>
         </div>
     )

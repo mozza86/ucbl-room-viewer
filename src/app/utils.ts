@@ -27,6 +27,9 @@ type RawRoomData = {
 
 type RawFloorData = {
     size: [number, number]; // [width, height]
+    level: string,
+    label: string,
+    image: string,
     rooms: RawRoomData[]
 }
 
@@ -35,7 +38,24 @@ export type FloorData = {
         width: number;
         height: number;
     }
+    level: string,
+    label: string,
+    image: string,
     rooms: RoomData[]
+}
+
+type RawBuildingData = {
+    "name": string,
+    "code": string,
+    "adeUrl": string
+    "floors": RawFloorData[]
+}
+
+export type BuildingData = {
+    "name": string,
+    "code": string,
+    "adeUrl": string,
+    "floors": FloorData[]
 }
 
 function normalizeRoom(room: RawRoomData): RoomData {
@@ -55,22 +75,37 @@ function normalizeRoom(room: RawRoomData): RoomData {
     };
 }
 
-export async function getFloorData(floor: string): Promise<{ data?: FloorData, error?: Error }> {
-    const filePath = path.join(process.cwd(), 'public', 'B2', `${floor}.json`);
+export async function getBuildingList() {
+    const filePath = path.join(process.cwd(), 'public');
+    const dirList = fs.readdirSync(filePath, {withFileTypes: true});
+
+    return dirList.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name);
+}
+
+export async function getBuildingData(building: string) {
+    const filePath = path.join(process.cwd(), 'public', building, `building.json`);
 
     try {
         const fileContents = fs.readFileSync(filePath, 'utf-8');
-        const rawData: RawFloorData = JSON.parse(fileContents);
+        const rawBuildingData: RawBuildingData = JSON.parse(fileContents);
 
-        const data: FloorData = {
-            size: {
-                width: rawData.size[0],
-                height: rawData.size[1],
-            },
-            rooms: (rawData.rooms ?? []).map(normalizeRoom),
+        const buildingData: BuildingData = {
+            name: rawBuildingData.name,
+            code: rawBuildingData.code,
+            adeUrl: rawBuildingData.adeUrl,
+            floors: rawBuildingData.floors.map(rawFloor => ({
+                level: rawFloor.level,
+                label: rawFloor.label,
+                image: rawFloor.image,
+                size: {
+                    width: rawFloor.size[0],
+                    height: rawFloor.size[1],
+                },
+                rooms: (rawFloor.rooms ?? []).map(normalizeRoom),
+            }))
         }
 
-        return {data};
+        return {data: buildingData};
     } catch (error) {
         return {error: error as Error};
     }

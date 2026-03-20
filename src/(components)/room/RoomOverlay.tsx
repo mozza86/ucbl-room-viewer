@@ -9,7 +9,7 @@ interface RoomOverlayProps {
     roomEvents: CalendarEvent[]
 }
 
-export default function RoomOverlay({room, scaleX = 1, scaleY = 1, roomEvents}: RoomOverlayProps) {
+export default function RoomOverlay({room, scaleX = 1, scaleY = 1, roomEvents}: Readonly<RoomOverlayProps>) {
     const now = new Date();
 
     const currentEvent = roomEvents.find(event => isWithinInterval(now, {start: event.start, end: event.end}));
