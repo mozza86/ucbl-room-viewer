@@ -83,6 +83,7 @@ loginctl enable-linger "$USER"
 - Quadlet keeps using `Image=localhost/ucbl-room-viewer:latest`, so deployments remain stable while preserving per-build traceability.
 - The install script always uses the current directory as project source and the fixed service name `ucbl-room-viewer`.
 - The install script auto-detects mode: `system` when run as root, `user` otherwise (`--mode` can override this).
+- If `/dev/net/tun` is missing, the script automatically builds with Podman `--network host` to avoid pasta/tun failures.
 - Use `--build-only` if you want to build the image without changing Quadlet/systemd.
 - Use `--no-cache` to force a fresh image build without reusing build cache layers.
 - On some LXC/systemd versions, `enable` may fail for Quadlet units; `start`/`restart` of `ucbl-room-viewer.service` can still work.

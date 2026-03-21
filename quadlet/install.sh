@@ -30,6 +30,7 @@ PROJECT_SOURCE="$(pwd)"
 UNIT_SOURCE="$PROJECT_SOURCE/quadlet/$SERVICE_NAME.container"
 BUILD_ONLY=0
 NO_CACHE=0
+BUILD_NETWORK="default"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -75,6 +76,11 @@ if [[ "$MODE_SOURCE" == "auto" ]]; then
   echo "Auto-detected mode: $MODE"
 fi
 
+if [[ ! -e /dev/net/tun ]]; then
+  BUILD_NETWORK="host"
+  echo "No /dev/net/tun detected, forcing podman build network to host."
+fi
+
 
 IMAGE_LATEST_REF="localhost/${SERVICE_NAME}:latest"
 BUILD_TIMESTAMP="$(date -u +%Y%m%d%H%M%S)"
@@ -115,6 +121,10 @@ enable_unit_best_effort() {
 
 build_image() {
   local -a build_cmd=("${SUDO[@]}" podman build)
+
+  if [[ "$BUILD_NETWORK" == "host" ]]; then
+    build_cmd+=(--network host)
+  fi
 
   if [[ "$NO_CACHE" -eq 1 ]]; then
     build_cmd+=(--no-cache)
