@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package.json package-lock.json* yarn.lock* .npmrc* ./
 
 # Install dependencies
-RUN npm ci || npm install
+RUN npm ci
 
 # Copy source code
 COPY . .
@@ -27,7 +27,7 @@ ENV NODE_ENV=production
 COPY package.json package-lock.json* yarn.lock* .npmrc* ./
 
 # Install production dependencies only
-RUN npm ci --only=production || npm install --production
+RUN npm ci --only=production
 
 # Copy built application from builder stage
 COPY --from=builder /app/.next ./.next

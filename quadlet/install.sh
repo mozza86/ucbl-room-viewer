@@ -122,7 +122,9 @@ if [[ -z "$UNIT_SOURCE" ]]; then
   UNIT_SOURCE="$PROJECT_SOURCE/quadlet/$SERVICE_NAME.container"
 fi
 
-IMAGE_REF="localhost/${SERVICE_NAME}:latest"
+IMAGE_LATEST_REF="localhost/${SERVICE_NAME}:latest"
+BUILD_TIMESTAMP="$(date -u +%Y%m%d%H%M%S)"
+IMAGE_VERSION_REF="localhost/${SERVICE_NAME}:${BUILD_TIMESTAMP}"
 
 if [[ ! -d "$PROJECT_SOURCE" ]]; then
   echo "Project source directory not found: $PROJECT_SOURCE" >&2
@@ -141,10 +143,10 @@ run() {
 
 enable_unit_best_effort() {
   # Quadlet/systemd behavior differs by distro version; enabling may fail even if start/restart works.
-  if "${SYSTEMCTL[@]}" enable "$SERVICE_NAME.container"; then
+  if "${SYSTEMCTL[@]}" enable "$SERVICE_NAME"; then
     return 0
   fi
-  if "${SYSTEMCTL[@]}" enable "$SERVICE_NAME.service"; then
+  if "${SYSTEMCTL[@]}" enable "$SERVICE_NAME"; then
     return 0
   fi
 
@@ -164,7 +166,8 @@ build_image() {
     build_cmd+=(--no-cache)
   fi
 
-  build_cmd+=(--pull=always -t "$IMAGE_REF" -f "$PROJECT_TARGET/Dockerfile" "$PROJECT_TARGET")
+  # Build one immutable timestamped tag and keep latest as deploy/runtime alias.
+  build_cmd+=(--pull=always -t "$IMAGE_VERSION_REF" -t "$IMAGE_LATEST_REF" -f "$PROJECT_TARGET/Dockerfile" "$PROJECT_TARGET")
 
   run "${build_cmd[@]}"
 }
@@ -230,12 +233,14 @@ if [[ "$SKIP_BUILD" -eq 0 ]]; then
   fi
 
   build_image "$EFFECTIVE_BUILD_NETWORK"
+  echo "Built image tags: $IMAGE_VERSION_REF (versioned), $IMAGE_LATEST_REF (deployment alias)."
 else
-  echo "Skipping image build (--skip-build)."
+  echo "Skipping image build (--skip-build). Quadlet/service will keep using: $IMAGE_LATEST_REF"
 fi
 
 if [[ "$BUILD_ONLY" -eq 1 ]]; then
   echo "Build-only completed (no Quadlet/systemd changes applied)."
+  echo "Image tags available: $IMAGE_VERSION_REF (versioned), $IMAGE_LATEST_REF (deployment alias)."
   exit 0
 fi
 

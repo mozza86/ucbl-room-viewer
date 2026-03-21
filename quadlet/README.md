@@ -86,6 +86,8 @@ loginctl enable-linger "$USER"
 - `NODE_ENV=production` is set in the container.
 - The script uses `rsync` when available, with fallback to `tar`.
 - The image is built during `quadlet/install.sh`, not at each service start.
+- Each build now creates two tags: a UTC timestamped tag (`localhost/ucbl-room-viewer:YYYYMMDDHHMMSS`) and `localhost/ucbl-room-viewer:latest`.
+- Quadlet keeps using `Image=localhost/ucbl-room-viewer:latest`, so deployments remain stable while preserving per-build traceability.
 - Use `--skip-build` if you want to redeploy/restart without rebuilding the image.
 - Use `--build-only` if you want to copy sources and build the image without changing Quadlet/systemd.
 - Use `--no-cache` to force a fresh image build without reusing build cache layers.
