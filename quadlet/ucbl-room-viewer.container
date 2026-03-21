@@ -17,8 +17,6 @@ Network=traefik-net.network
 [Service]
 Restart=always
 TimeoutStartSec=900
-# Update this path to where your project is checked out on the Linux host.
-WorkingDirectory=/opt/ucbl-room-viewer
 
 [Install]
 WantedBy=multi-user.target

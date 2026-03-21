@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DEFAULT_SERVICE_NAME="ucbl-room-viewer"
-SERVICE_NAME="$DEFAULT_SERVICE_NAME"
+SERVICE_NAME="ucbl-room-viewer"
 
 usage() {
   cat <<EOF
@@ -12,71 +11,35 @@ Usage:
   quadlet/install.sh [options]
 
 Options:
-  --mode <system|user>       Installation mode (default: system)
-  --source <path>            Project source directory (default: repo root)
-  --target <path>            Deployment directory (default: /opt/${SERVICE_NAME} in system mode, \$HOME/${SERVICE_NAME} in user mode)
-  --service-name <name>      systemd service base name (default: ${SERVICE_NAME})
-  --unit-source <path>       Source Quadlet .container file (default: <source>/quadlet/<service-name>.container)
-  --build-network <mode>     Podman build network mode: auto|default|host (default: auto)
+  --mode <system|user>       Installation mode override (default: auto-detected)
   --no-cache                 Disable Podman build cache
-  --skip-build               Skip podman image build during deployment
-  --build-only               Copy sources + build image, then exit (no systemd changes)
+  --build-only               Build image only, then exit (no systemd changes)
   --help                     Show this help
 
 Examples:
   sudo quadlet/install.sh
-  sudo quadlet/install.sh --target /srv/${SERVICE_NAME}
-  quadlet/install.sh --mode user --target "\$HOME/apps/${SERVICE_NAME}"
-  sudo quadlet/install.sh --service-name my-app --build-only
-  sudo quadlet/install.sh --build-network host
+  quadlet/install.sh
+  sudo quadlet/install.sh --build-only
   sudo quadlet/install.sh --no-cache
 EOF
 }
 
-SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-DEFAULT_SOURCE="$(cd -- "$SCRIPT_DIR/.." && pwd)"
-
-MODE="system"
-PROJECT_SOURCE="$DEFAULT_SOURCE"
-PROJECT_TARGET=""
-UNIT_SOURCE=""
-SKIP_BUILD=0
+MODE=""
+MODE_SOURCE="auto"
+PROJECT_SOURCE="$(pwd)"
+UNIT_SOURCE="$PROJECT_SOURCE/quadlet/$SERVICE_NAME.container"
 BUILD_ONLY=0
-BUILD_NETWORK="${BUILD_NETWORK:-auto}"
 NO_CACHE=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --mode)
       MODE="${2:-}"
-      shift 2
-      ;;
-    --source)
-      PROJECT_SOURCE="${2:-}"
-      shift 2
-      ;;
-    --target)
-      PROJECT_TARGET="${2:-}"
-      shift 2
-      ;;
-    --service-name)
-      SERVICE_NAME="${2:-}"
-      shift 2
-      ;;
-    --unit-source)
-      UNIT_SOURCE="${2:-}"
-      shift 2
-      ;;
-    --build-network)
-      BUILD_NETWORK="${2:-}"
+      MODE_SOURCE="flag"
       shift 2
       ;;
     --no-cache)
       NO_CACHE=1
-      shift
-      ;;
-    --skip-build)
-      SKIP_BUILD=1
       shift
       ;;
     --build-only)
@@ -95,32 +58,23 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if [[ -z "$MODE" ]]; then
+  if [[ ${EUID:-$(id -u)} -eq 0 ]]; then
+    MODE="system"
+  else
+    MODE="user"
+  fi
+fi
+
 if [[ "$MODE" != "system" && "$MODE" != "user" ]]; then
   echo "Invalid --mode value: $MODE (expected system or user)" >&2
   exit 1
 fi
 
-if [[ "$SKIP_BUILD" -eq 1 && "$BUILD_ONLY" -eq 1 ]]; then
-  echo "--build-only and --skip-build cannot be used together." >&2
-  exit 1
+if [[ "$MODE_SOURCE" == "auto" ]]; then
+  echo "Auto-detected mode: $MODE"
 fi
 
-if [[ "$BUILD_NETWORK" != "auto" && "$BUILD_NETWORK" != "default" && "$BUILD_NETWORK" != "host" ]]; then
-  echo "Invalid --build-network value: $BUILD_NETWORK (expected auto, default, or host)." >&2
-  exit 1
-fi
-
-if [[ -z "$PROJECT_TARGET" ]]; then
-  if [[ "$MODE" == "system" ]]; then
-    PROJECT_TARGET="/opt/$SERVICE_NAME"
-  else
-    PROJECT_TARGET="$HOME/$SERVICE_NAME"
-  fi
-fi
-
-if [[ -z "$UNIT_SOURCE" ]]; then
-  UNIT_SOURCE="$PROJECT_SOURCE/quadlet/$SERVICE_NAME.container"
-fi
 
 IMAGE_LATEST_REF="localhost/${SERVICE_NAME}:latest"
 BUILD_TIMESTAMP="$(date -u +%Y%m%d%H%M%S)"
@@ -128,6 +82,11 @@ IMAGE_VERSION_REF="localhost/${SERVICE_NAME}:${BUILD_TIMESTAMP}"
 
 if [[ ! -d "$PROJECT_SOURCE" ]]; then
   echo "Project source directory not found: $PROJECT_SOURCE" >&2
+  exit 1
+fi
+
+if [[ ! -f "$PROJECT_SOURCE/Dockerfile" ]]; then
+  echo "Dockerfile not found in source directory: $PROJECT_SOURCE/Dockerfile" >&2
   exit 1
 fi
 
@@ -155,19 +114,14 @@ enable_unit_best_effort() {
 }
 
 build_image() {
-  local network_mode="$1"
   local -a build_cmd=("${SUDO[@]}" podman build)
-
-  if [[ "$network_mode" != "default" ]]; then
-    build_cmd+=(--network "$network_mode")
-  fi
 
   if [[ "$NO_CACHE" -eq 1 ]]; then
     build_cmd+=(--no-cache)
   fi
 
   # Build one immutable timestamped tag and keep latest as deploy/runtime alias.
-  build_cmd+=(--pull=always -t "$IMAGE_VERSION_REF" -t "$IMAGE_LATEST_REF" -f "$PROJECT_TARGET/Dockerfile" "$PROJECT_TARGET")
+  build_cmd+=(--pull=always -t "$IMAGE_VERSION_REF" -t "$IMAGE_LATEST_REF" -f "$PROJECT_SOURCE/Dockerfile" "$PROJECT_SOURCE")
 
   run "${build_cmd[@]}"
 }
@@ -205,38 +159,9 @@ else
 fi
 UNIT_DEST_PATH="$UNIT_DEST_DIR/$SERVICE_NAME.container"
 
-if command -v rsync >/dev/null 2>&1; then
-  run "${SUDO[@]}" mkdir -p "$PROJECT_TARGET"
-  run "${SUDO[@]}" rsync -a --delete \
-    --exclude .git \
-    --exclude node_modules \
-    --exclude .next \
-    --exclude .DS_Store \
-    --exclude '*.log' \
-    "$PROJECT_SOURCE/" "$PROJECT_TARGET/"
-else
-  echo "rsync not found; using tar fallback." >&2
-  run "${SUDO[@]}" mkdir -p "$PROJECT_TARGET"
-  run bash -c "cd \"$PROJECT_SOURCE\" && tar --exclude=.git --exclude=node_modules --exclude=.next --exclude='*.log' -cf - . | ${SUDO[*]:-} tar -C \"$PROJECT_TARGET\" -xf -"
-fi
-
-if [[ "$SKIP_BUILD" -eq 0 ]]; then
-  # Build once at deploy time; service starts no longer trigger rebuilds.
-  EFFECTIVE_BUILD_NETWORK="$BUILD_NETWORK"
-  if [[ "$BUILD_NETWORK" == "auto" ]]; then
-    if [[ -e /dev/net/tun ]]; then
-      EFFECTIVE_BUILD_NETWORK="default"
-    else
-      EFFECTIVE_BUILD_NETWORK="host"
-      echo "No /dev/net/tun detected, forcing podman build network to host." >&2
-    fi
-  fi
-
-  build_image "$EFFECTIVE_BUILD_NETWORK"
-  echo "Built image tags: $IMAGE_VERSION_REF (versioned), $IMAGE_LATEST_REF (deployment alias)."
-else
-  echo "Skipping image build (--skip-build). Quadlet/service will keep using: $IMAGE_LATEST_REF"
-fi
+# Build once at deploy time; service starts no longer trigger rebuilds.
+build_image
+echo "Built image tags: $IMAGE_VERSION_REF (versioned), $IMAGE_LATEST_REF (deployment alias)."
 
 if [[ "$BUILD_ONLY" -eq 1 ]]; then
   echo "Build-only completed (no Quadlet/systemd changes applied)."
@@ -245,21 +170,7 @@ if [[ "$BUILD_ONLY" -eq 1 ]]; then
 fi
 
 run "${SUDO[@]}" mkdir -p "$UNIT_DEST_DIR"
-
-TMP_UNIT="$(mktemp)"
-cleanup() {
-  rm -f "$TMP_UNIT"
-}
-trap cleanup EXIT
-
-awk -v wd="$PROJECT_TARGET" '
-  BEGIN {updated=0}
-  /^WorkingDirectory=/ {print "WorkingDirectory=" wd; updated=1; next}
-  {print}
-  END {if (!updated) print "WorkingDirectory=" wd}
-' "$UNIT_SOURCE" > "$TMP_UNIT"
-
-run "${SUDO[@]}" cp "$TMP_UNIT" "$UNIT_DEST_PATH"
+run "${SUDO[@]}" cp "$UNIT_SOURCE" "$UNIT_DEST_PATH"
 
 run "${SYSTEMCTL[@]}" daemon-reload
 enable_unit_best_effort

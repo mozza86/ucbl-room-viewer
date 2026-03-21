@@ -16,6 +16,22 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Run with a container
+
+Docker:
+
+```bash
+docker build -t ucbl-room-viewer:latest .
+docker run --rm --name ucbl-room-viewer -p 3000:3000 ucbl-room-viewer:latest
+```
+
+Podman:
+
+```bash
+podman build -t ucbl-room-viewer:latest .
+podman run --rm --name ucbl-room-viewer -p 3000:3000 ucbl-room-viewer:latest
+```
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
