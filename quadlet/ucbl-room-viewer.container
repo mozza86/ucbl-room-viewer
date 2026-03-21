@@ -6,8 +6,13 @@ After=network-online.target
 [Container]
 ContainerName=ucbl-room-viewer
 Image=localhost/ucbl-room-viewer:latest
-PublishPort=8888:3000
+# PublishPort=3000:3000
 Environment=NODE_ENV=production
+Label=traefik.enable=true
+Label=traefik.http.routers.ucbl-room-viewer.rule=Host(`ucbl-room-viewer.a4r.fr`)
+Label=traefik.http.services.ucbl-room-viewer.loadbalancer.server.port=3000
+Network=traefik-net.network
+
 
 [Service]
 Restart=always
