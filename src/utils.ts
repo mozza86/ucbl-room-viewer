@@ -79,7 +79,11 @@ export async function getBuildingList() {
     const filePath = path.join(process.cwd(), 'public');
     const dirList = fs.readdirSync(filePath, {withFileTypes: true});
 
-    return dirList.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name);
+    return Promise.all(
+        dirList.filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name)
+            .map(async name => await getBuildingData(name))
+    )
 }
 
 export async function getBuildingData(building: string) {

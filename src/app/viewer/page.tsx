@@ -6,11 +6,13 @@ export default async function Page() {
 
     return (
         <div>
-            {buildings.map((building) => (
-                <Link href={`/viewer/${building}`} key={building} className="block p-4 border rounded mb-2">
-                    {building}
+            {buildings.map(({data, error}, idx) => {
+                if (error) return <div key={idx}>{error.message}</div>;
+
+                return <Link href={`/viewer/${data.code}`} key={data.code} className="block p-4 border rounded mb-2">
+                    {data.code} - {data.name}
                 </Link>
-            ))}
+            })}
         </div>
     )
 }
