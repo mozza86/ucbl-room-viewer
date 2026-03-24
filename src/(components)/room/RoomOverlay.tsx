@@ -47,6 +47,8 @@ export default function RoomOverlay({room, scaleX = 1, scaleY = 1, roomEvents}: 
     const ref = useRef<HTMLDivElement>(null!);
     const {elX, elY} = useMouse(ref);
 
+    const tooltipLeft = Math.min(elX, globalThis?.window?.innerWidth??0 - 320) - 160;
+
     return (
         <div
             ref={ref}
@@ -74,7 +76,7 @@ export default function RoomOverlay({room, scaleX = 1, scaleY = 1, roomEvents}: 
             </div>
             <div
                  style={{
-                     left: elX-160 + "px",
+                     left: tooltipLeft + "px",
                      top: elY + "px",
                  }}
                  className="absolute z-300 hidden group-hover:block">
