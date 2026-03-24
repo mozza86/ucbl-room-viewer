@@ -1,5 +1,5 @@
 import ICAL from "ical.js";
-import {format} from 'date-fns';
+import {format, isBefore, subMinutes} from 'date-fns';
 
 const currentDate = format(new Date(), 'yyyy-MM-dd');
 
@@ -14,8 +14,28 @@ export type CalendarEvent = {
     description: string;
 }
 
+let calendars: CalendarEvent[];
+let calendarCache: Date;
+
+export async function getCalendars() {
+    const isCacheMissing = !calendars
+    const isCacheExpired = isBefore(calendarCache, subMinutes(new Date(), 10))
+    console.log('Calendars missing in cache', isCacheMissing);
+    console.log('Calendars cache expired', isCacheExpired, calendarCache)
+
+    if (isCacheMissing || isCacheExpired) {
+        const {error, calendarEvents} = await fetchCalendar()
+        if (!calendarEvents) return {error};
+        calendars = calendarEvents
+        calendarCache = new Date()
+        console.log('Reconstructed cache', calendarCache)
+    }
+    return {calendarEvents: calendars};
+}
+
 export async function fetchCalendar(): Promise<{ error?: string, calendarEvents?: CalendarEvent[] }> {
     try {
+        console.info("Fetching calendar events:", url);
         const response = await fetch(url)
         if (!response.ok) return {error: response.statusText};
 

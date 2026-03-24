@@ -1,6 +1,6 @@
 'use client'
 import Link from "next/link";
-import {BuildingData} from "@/app/utils";
+import {BuildingData} from "@/utils";
 
 interface FloorSelectorProps {
     currentFloor?: string,

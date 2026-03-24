@@ -1,4 +1,4 @@
-import {getBuildingList} from "@/app/utils";
+import {getBuildingList} from "@/utils";
 import Link from "next/link";
 
 export default async function Page() {

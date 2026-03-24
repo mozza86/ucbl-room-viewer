@@ -1,10 +1,10 @@
 'use client'
 import FloorOverlay from "@/(components)/floor/FloorOverlay";
 import Image from "next/image";
-import {FloorData} from "@/app/utils";
+import {FloorData} from "@/utils";
 import useMeasure from "react-use-measure";
 import {useMountedState, useWindowSize} from "react-use";
-import {CalendarEvent} from "@/app/ade";
+import {CalendarEvent} from "@/ade";
 
 interface FloorViewerClientProps {
     floorData: FloorData,

@@ -1,14 +1,14 @@
 'use server'
-import {FloorData} from "@/app/utils";
+import {FloorData} from "@/utils";
 import FloorViewerClient from "@/(components)/floor/FloorViewerClient";
-import {CalendarEvent, fetchCalendar} from "@/app/ade";
+import {CalendarEvent, getCalendars} from "@/ade";
 
 interface FloorViewerProps {
     floor: FloorData
 }
 
 export default async function FloorViewer({floor}: Readonly<FloorViewerProps>) {
-    const {calendarEvents, error: calendarError} = await fetchCalendar()
+    const {calendarEvents, error: calendarError} = await getCalendars()
     if (calendarError || !calendarEvents) return calendarError
 
     const processedCalendarEvents: CalendarEvent[] = calendarEvents.filter(event => {

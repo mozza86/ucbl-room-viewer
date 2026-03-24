@@ -1,7 +1,7 @@
 'use server'
 import FloorSelector from "@/(components)/floor/FloorSelector";
 import FloorViewer from "@/(components)/floor/FloorViewer";
-import {getBuildingData} from "@/app/utils";
+import {getBuildingData} from "@/utils";
 
 interface PageProps {
     params: Promise<{

@@ -1,7 +1,7 @@
-import {FloorData} from "@/app/utils";
+import {FloorData} from "@/utils";
 import RoomOverlay from "@/(components)/room/RoomOverlay";
 import {RectReadOnly} from "react-use-measure";
-import {CalendarEvent} from "@/app/ade";
+import {CalendarEvent} from "@/ade";
 
 interface FloorOverlayProps {
     floorData: FloorData,

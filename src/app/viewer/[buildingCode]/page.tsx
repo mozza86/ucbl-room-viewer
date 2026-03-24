@@ -1,6 +1,6 @@
 'use server'
 import FloorViewer from "@/(components)/floor/FloorViewer";
-import {getBuildingData} from "@/app/utils";
+import {getBuildingData} from "@/utils";
 import FloorSelector from "@/(components)/floor/FloorSelector";
 
 interface PageProps {

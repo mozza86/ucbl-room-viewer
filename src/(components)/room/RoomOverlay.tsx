@@ -1,5 +1,5 @@
-import {RoomData} from "@/app/utils";
-import {CalendarEvent} from "@/app/ade";
+import {RoomData} from "@/utils";
+import {CalendarEvent} from "@/ade";
 import {format, isWithinInterval} from "date-fns";
 
 interface RoomOverlayProps {
