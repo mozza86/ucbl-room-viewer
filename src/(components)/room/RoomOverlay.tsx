@@ -44,7 +44,7 @@ export default function RoomOverlay({room, scaleX = 1, scaleY = 1, roomEvents}: 
         bgColor = "#38df77"
     }
 
-    const ref = useRef<HTMLDivElement>(null);
+    const ref = useRef<HTMLDivElement>(null!);
     const {elX, elY} = useMouse(ref);
 
     return (
@@ -57,7 +57,7 @@ export default function RoomOverlay({room, scaleX = 1, scaleY = 1, roomEvents}: 
             height: room.height * scaleY,
             backgroundColor: bgColor,
         }}
-             className="group border-2 border-black absolute z-20">
+             className="group border-2 border-black absolute z-20 hover:z-50">
             <div className="flex flex-col items-center justify-center text-sm text-white w-full h-full font-bold">
                 <div className="w-full text-sm text-center line-clamp-1">
                     {statusRoom}
@@ -74,11 +74,10 @@ export default function RoomOverlay({room, scaleX = 1, scaleY = 1, roomEvents}: 
             </div>
             <div
                  style={{
-                     position: "absolute",
                      left: elX-160 + "px",
                      top: elY + "px",
                  }}
-                 className="hidden group-hover:block">
+                 className="absolute z-300 hidden group-hover:block">
                 <RoomDetails room={room} events={roomEvents}/>
             </div>
         </div>
