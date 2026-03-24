@@ -1,0 +1,22 @@
+{
+  "name": "Amphi 2",
+  "code": "B10",
+  "description": "Amphi 2",
+  "ressources": "17",
+  "adeUrl": "https://edt.univ-lyon1.fr/jsp/custom/modules/plannings/anonymous_cal.jsp?projectId=1&calType=ical",
+  "floors": [
+    {
+      "level": "0",
+      "label": "Rez-de-chaussée",
+      "image": "/B10/0.jpg",
+      "size": [2048, 1045],
+      "rooms": [
+        {
+          "name": "Amphi 2",
+          "adeName": "Amphi2",
+          "bbox": [0, 0, 2048, 1045]
+        }
+      ]
+    }
+  ]
+}
