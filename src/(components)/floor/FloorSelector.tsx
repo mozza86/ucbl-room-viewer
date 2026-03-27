@@ -15,13 +15,13 @@ export default function FloorSelector({currentBuilding, currentFloor}: Readonly<
 
     return (
         <div
-            className="fixed top-4 left-1/2 transform -translate-x-1/2 z-10 bg-white bg-opacity-80 rounded-md p-2 shadow-md">
+            className="fixed top-4 left-1/2 transform -translate-x-1/2 z-10 bg-white text-black bg-opacity-80 rounded-md p-2 shadow-md">
             <div className="flex gap-2">
                 <Link
-                    className={"px-2 py-0.5 rounded bg-blue-200 hover:bg-blue-300 transition" + (!currentFloor ? " bg-blue-500 text-white" : "")}
+                    className={"px-2 py-0.5 rounded bg-blue-200 hover:bg-blue-300 transition" + (currentFloor ? "" : " bg-blue-500 text-white")}
                     href={`/viewer/${currentBuilding.code}`}>Tous</Link>
-                {floors.map((floor, index) => (
-                    <Link key={index}
+                {floors.map((floor) => (
+                    <Link key={currentBuilding.code}
                           className={"px-2 py-0.5 rounded bg-blue-200 hover:bg-blue-300 transition" + (floor.value.toString() === currentFloor ? " bg-blue-500 text-white" : "")}
                           href={`/viewer/${currentBuilding.code}/${floor.value}`}>{floor.label}</Link>
                 ))}
