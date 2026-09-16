@@ -9,9 +9,13 @@ interface FloorViewerProps {
 
 export default async function FloorViewer({floor}: Readonly<FloorViewerProps>) {
     const {calendarEvents, error: calendarError} = await getCalendars()
-    if (calendarError || !calendarEvents) return calendarError
+    const calendarAvailable = !calendarError && !!calendarEvents;
 
-    const processedCalendarEvents: CalendarEvent[] = calendarEvents.filter(event => {
+    if (calendarError) {
+        console.warn("Calendar unavailable; rendering the floor without availability data:", calendarError);
+    }
+
+    const processedCalendarEvents: CalendarEvent[] = (calendarEvents ?? []).filter(event => {
         const eventLocation = event.location?.trim();
         return floor?.rooms.some(room => room.adeName === eventLocation);
     }).map(event => {
@@ -22,5 +26,15 @@ export default async function FloorViewer({floor}: Readonly<FloorViewerProps>) {
         }
     })
 
-    return <FloorViewerClient floorData={floor} calendarEvents={processedCalendarEvents}/>;
+    return (
+        <div>
+            {!calendarAvailable && (
+                <p role="status" className="mb-2 rounded bg-amber-100 p-2 text-amber-900">
+                    Les disponibilités des salles sont temporairement indisponibles.
+                </p>
+            )}
+            <FloorViewerClient floorData={floor} calendarEvents={processedCalendarEvents}
+                               calendarAvailable={calendarAvailable}/>
+        </div>
+    );
 }

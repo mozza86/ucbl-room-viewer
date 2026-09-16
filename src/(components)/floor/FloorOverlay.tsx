@@ -7,10 +7,11 @@ interface FloorOverlayProps {
     floorData: FloorData,
     imgBounds: RectReadOnly,
     isLandscape?: boolean,
-    calendarEvents: CalendarEvent[]
+    calendarEvents: CalendarEvent[],
+    calendarAvailable: boolean
 }
 
-export default function FloorOverlay({floorData, imgBounds, isLandscape = true, calendarEvents}: Readonly<FloorOverlayProps>) {
+export default function FloorOverlay({floorData, imgBounds, isLandscape = true, calendarEvents, calendarAvailable}: Readonly<FloorOverlayProps>) {
     const width = isLandscape ? imgBounds.width : imgBounds.height;
     const height = isLandscape ? imgBounds.height : imgBounds.width;
 
@@ -21,7 +22,8 @@ export default function FloorOverlay({floorData, imgBounds, isLandscape = true, 
         <div style={{width, height}} className="absolute top-0 opacity-90 left-0 z-10">
             {floorData.rooms.map((room) => (
                 <RoomOverlay key={room.name} room={room} scaleX={scaleX} scaleY={scaleY}
-                             roomEvents={calendarEvents.filter(event => event.location === room.name)}/>
+                             roomEvents={calendarEvents.filter(event => event.location === room.name)}
+                             calendarAvailable={calendarAvailable}/>
             ))}
         </div>
     );

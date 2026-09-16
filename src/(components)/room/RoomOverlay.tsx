@@ -9,20 +9,23 @@ interface RoomOverlayProps {
     room: RoomData,
     scaleX?: number,
     scaleY?: number,
-    roomEvents: CalendarEvent[]
+    roomEvents: CalendarEvent[],
+    calendarAvailable: boolean
 }
 
-export default function RoomOverlay({room, scaleX = 1, scaleY = 1, roomEvents}: Readonly<RoomOverlayProps>) {
+export default function RoomOverlay({room, scaleX = 1, scaleY = 1, roomEvents, calendarAvailable}: Readonly<RoomOverlayProps>) {
     const now = new Date();
 
-    roomEvents.sort((a, b) => a.start.getTime() - b.start.getTime());
+    const sortedRoomEvents = [...roomEvents].sort((a, b) => a.start.getTime() - b.start.getTime());
 
-    const currentEvent = roomEvents.find(event => isWithinInterval(now, {start: event.start, end: event.end}));
+    const currentEvent = calendarAvailable
+        ? sortedRoomEvents.find(event => isWithinInterval(now, {start: event.start, end: event.end}))
+        : undefined;
 
-    let statusRoom = "Libre"
+    let statusRoom = calendarAvailable ? "Libre" : "Indisponible"
     let description = ""
     let label = ""
-    let bgColor = "#00C950"
+    let bgColor = calendarAvailable ? "#00C950" : "#6B7280"
 
     if (currentEvent) {
         statusRoom = "Occupée - " + format(currentEvent.end, 'HH:mm');
@@ -31,7 +34,7 @@ export default function RoomOverlay({room, scaleX = 1, scaleY = 1, roomEvents}: 
         bgColor = "#ff974d"
     }
 
-    const nextEvent = roomEvents.find(event => event.start > now);
+    const nextEvent = calendarAvailable ? sortedRoomEvents.find(event => event.start > now) : undefined;
 
     if (nextEvent && currentEvent) {
         statusRoom = "Occupée - " + format(nextEvent.end, 'HH:mm');
@@ -76,14 +79,14 @@ export default function RoomOverlay({room, scaleX = 1, scaleY = 1, roomEvents}: 
                     <span className="line-clamp-1">{description}</span>
                 </div>
             </div>
-            <div
+            {calendarAvailable && <div
                  style={{
                      left: tooltipLeft + "px",
                      top: elY + "px",
                  }}
                  className="absolute z-300 hidden group-hover:block">
-                <RoomDetails room={room} events={roomEvents}/>
-            </div>
+                <RoomDetails room={room} events={sortedRoomEvents}/>
+            </div>}
         </div>
     );
 }

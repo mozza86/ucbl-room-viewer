@@ -8,10 +8,11 @@ import {CalendarEvent} from "@/ade";
 
 interface FloorViewerClientProps {
     floorData: FloorData,
-    calendarEvents: CalendarEvent[]
+    calendarEvents: CalendarEvent[],
+    calendarAvailable: boolean
 }
 
-export default function FloorViewerClient({floorData, calendarEvents}: Readonly<FloorViewerClientProps>) {
+export default function FloorViewerClient({floorData, calendarEvents, calendarAvailable}: Readonly<FloorViewerClientProps>) {
     const [imgRef, bounds] = useMeasure();
     const {width, height} = useWindowSize();
     const isMounted = useMountedState();
@@ -25,7 +26,7 @@ export default function FloorViewerClient({floorData, calendarEvents}: Readonly<
             transition: 'transform 0.3s ease',
         }}>
             <FloorOverlay floorData={floorData} isLandscape={isLandscape} imgBounds={bounds}
-                          calendarEvents={calendarEvents}/>
+                          calendarEvents={calendarEvents} calendarAvailable={calendarAvailable}/>
             <Image ref={imgRef} src={floorData.image} alt={"floor image"} width={floorData.size.width}
                    height={floorData.size.height}/>
         </div>
