@@ -13,7 +13,7 @@ export default function RoomDetails({room, events}: Readonly<RoomDetailsProps>) 
         <div className="flex flex-col z-[200] bg-white p-1 text-black rounded-lg w-xs border border-gray-200 shadow-2xl text-sm">
             <div className="flex justify-center">{room.name}</div>
             {events.map(event => {
-                const desc = event.description.split("(Exporté")[0]
+                const desc = event.description.split("(Exporté")[0]?.replace(/^\n?\d{13}\n/, '');
                 return (
                     <div key={event.start.toISOString()} className="flex gap-1 border-t border-gray-300 p-0.5 odd:bg-gray-100">
                         <div className=" flex flex-col items-center justify-center text-sm font-bold">
